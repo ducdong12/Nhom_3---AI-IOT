@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YOLO - Phát đối tượng (Người)</title>
+    <style>
+        body {
+            text-align: center;
+            background-color: #222;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            margin-top: 20px;
+        }
+        img {
+            border: 2px solid white;
+            margin-top: 10px;
+        }
+        #alert {
+            margin-top: 15px;
+            padding: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            display: none; /* Mặc định ẩn đi */
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>YOLO - Phát hiện đối tượng (Người)</h1>
+    <img src="{{ url_for('video_feed') }}" width="640" height="480">
+    
+    <!-- Vùng hiển thị cảnh báo -->
+    <div id="alert">🚨 Phát hiện đối tượng! 🚨</div>
+
+    <script>
+        function checkAlert() {
+            fetch('/alert_status')
+                .then(response => response.json())
+                .then(data => {
+                    let alertDiv = document.getElementById("alert");
+                    if (data.alert) {
+                        alertDiv.style.display = "block";
+                    } else {
+                        alertDiv.style.display = "none";
+                    }
+                });
+        }
+
+        setInterval(checkAlert, 500); // Kiểm tra cảnh báo mỗi 500ms
+    </script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Nhà Thông Minh</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 400px;
+            margin: 2rem auto;
+            background-color: #fff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        p {
+            font-size: 1rem;
+            margin: 0.5rem 0;
+        }
+        button {
+            display: inline-block;
+            background-color: #007bff;
+            color: #fff;
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-right: 0.5rem;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button[disabled] {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .alert { color: #dc3545; font-weight: bold; }
+        .safe { color: #28a745; font-weight: bold; }
+    </style>
+    <script>
+      // PHÒNG BẾP
+      function toggleKitchenLED(){
+         var current = document.getElementById("kitchen_led").innerText.trim();
+         var newState = (current.toLowerCase() === "off") ? "on" : "off";
+         var xhr = new XMLHttpRequest();
+         xhr.open("GET", "/set_led?room=kitchen&state=" + newState, true);
+         xhr.onreadystatechange = function(){
+             if(xhr.readyState==4 && xhr.status==200){
+                 location.reload();
+             }
+         }
+         xhr.send();
+      }
+      // PHÒNG KHÁCH
+      function toggleLivingLED(){
+         var current = document.getElementById("living_led").innerText.trim();
+         var newState = (current.toLowerCase() === "off") ? "on" : "off";
+         var xhr = new XMLHttpRequest();
+         xhr.open("GET", "/set_led?room=living_room&state=" + newState, true);
+         xhr.onreadystatechange = function(){
+             if(xhr.readyState==4 && xhr.status==200){
+                 location.reload();
+             }
+         }
+         xhr.send();
+      }
+      function toggleLivingFan(){
+         var current = document.getElementById("living_fan").innerText.trim();
+         var newState = (current.toLowerCase() === "off") ? "on" : "off";
+         var xhr = new XMLHttpRequest();
+         xhr.open("GET", "/set_fan?room=living_room&state=" + newState, true);
+         xhr.onreadystatechange = function(){
+             if(xhr.readyState==4 && xhr.status==200){
+                 location.reload();
+             }
+         }
+         xhr.send();
+      }
+      function toggleLivingSensor(){
+         var current = document.getElementById("living_sensor").innerText.trim();
+         var newState = (current.toLowerCase() === "bật") ? "off" : "on";
+         var xhr = new XMLHttpRequest();
+         xhr.open("GET", "/set_sensor?room=living_room&state=" + newState, true);
+         xhr.onreadystatechange = function(){
+             if(xhr.readyState==4 && xhr.status==200){
+                 location.reload();
+             }
+         }
+         xhr.send();
+      }
+      // PHÒNG NGỦ
+      function toggleBedroomLED(){
+         var current = document.getElementById("bedroom_led").innerText.trim();
+         var newState = (current.toLowerCase() === "off") ? "on" : "off";
+         var xhr = new XMLHttpRequest();
+         xhr.open("GET", "/set_led?room=bedroom&state=" + newState, true);
+         xhr.onreadystatechange = function(){
+             if(xhr.readyState==4 && xhr.status==200){
+                 location.reload();
+             }
+         }
+         xhr.send();
+      }
+      function toggleBedroomFan(){
+         var current = document.getElementById("bedroom_fan").innerText.trim();
+         var newState = (current.toLowerCase() === "off") ? "on" : "off";
+         var xhr = new XMLHttpRequest();
+         xhr.open("GET", "/set_fan?room=bedroom&state=" + newState, true);
+         xhr.onreadystatechange = function(){
+             if(xhr.readyState==4 && xhr.status==200){
+                 location.reload();
+             }
+         }
+         xhr.send();
+      }
+      function toggleBedroomWindow(){
+         var current = document.getElementById("bedroom_window").innerText.trim();
+         var newState = (current.toLowerCase() === "closed") ? "open" : "closed";
+         var xhr = new XMLHttpRequest();
+         xhr.open("GET", "/set_window?room=bedroom&state=" + newState, true);
+         xhr.onreadystatechange = function(){
+             if(xhr.readyState==4 && xhr.status==200){
+                 location.reload();
+             }
+         }
+         xhr.send();
+      }
+      // Tự động refresh trang mỗi 5 giây
+      setTimeout(function(){
+         window.location.reload();
+      }, 5000);
+    </script>
+</head>
+<body>
+    <!-- PHÒNG BẾP -->
+    <div class="container">
+        <h1>Phòng Bếp</h1>
+        <p>Nhiệt độ: {{ sensor_data.kitchen.temp }} °C</p>
+        <p>Độ ẩm: {{ sensor_data.kitchen.hum }} %</p>
+        <p>Nồng độ khí gas: {{ sensor_data.kitchen.gas }} ppm</p>
+        <p>Tình trạng báo động: 
+            {% if sensor_data.kitchen.alarm == "ALERT" %}
+               <span class="alert">{{ sensor_data.kitchen.alarm }}</span>
+            {% else %}
+               <span class="safe">{{ sensor_data.kitchen.alarm }}</span>
+            {% endif %}
+        </p>
+        <p>Đèn LED chính: <span id="kitchen_led">{{ sensor_data.kitchen.led }}</span></p>
+        <button onclick="toggleKitchenLED()"
+          {% if sensor_data.kitchen.alarm == "ALERT" %}
+            disabled
+          {% endif %}>
+          {% if sensor_data.kitchen.alarm == "ALERT" %}
+             KHÓA
+          {% else %}
+             {% if sensor_data.kitchen.led == "ON" %}
+                TẮT ĐÈN
+             {% else %}
+                BẬT ĐÈN
+             {% endif %}
+          {% endif %}
+        </button>
+    </div>
+
+    <!-- PHÒNG KHÁCH -->
+    <div class="container">
+        <h1>Phòng Khách</h1>
+        <p>Nhiệt độ: {{ sensor_data.living_room.temp }} °C</p>
+        <p>Độ ẩm: {{ sensor_data.living_room.hum }} %</p>
+        <p>Khoảng cách: {{ sensor_data.living_room.distance }} cm</p>
+        <p>Chuyển động: {{ sensor_data.living_room.motion }}</p>
+        <p>Đèn LED: <span id="living_led">{{ sensor_data.living_room.led }}</span></p>
+        <p>Quạt: <span id="living_fan">{{ sensor_data.living_room.fan }}</span></p>
+        <p>Cảm biến HC-SR04: <span id="living_sensor">
+            {% if sensor_data.living_room.sensor == "YES" %}
+               BẬT
+            {% else %}
+               TẮT
+            {% endif %}
+        </span></p>
+        <button onclick="toggleLivingLED()">
+            {% if sensor_data.living_room.led == "ON" %}
+                TẮT ĐÈN
+            {% else %}
+                BẬT ĐÈN
+            {% endif %}
+        </button>
+        <button onclick="toggleLivingFan()">
+            {% if sensor_data.living_room.fan == "ON" %}
+                TẮT QUẠT
+            {% else %}
+                BẬT QUẠT
+            {% endif %}
+        </button>
+        <button onclick="toggleLivingSensor()">
+            {% if sensor_data.living_room.sensor == "YES" %}
+                TẮT CẢM BIẾN
+            {% else %}
+                BẬT CẢM BIẾN
+            {% endif %}
+        </button>
+    </div>
+
+    <!-- PHÒNG NGỦ -->
+    <div class="container">
+        <h1>Phòng Ngủ</h1>
+        <p>Nhiệt độ: {{ sensor_data.bedroom.temp }} °C</p>
+        <p>Độ ẩm: {{ sensor_data.bedroom.hum }} %</p>
+        <p>Mưa: {{ sensor_data.bedroom.rain }}</p>
+        <p>Đèn LED: <span id="bedroom_led">{{ sensor_data.bedroom.led }}</span></p>
+        <p>Quạt: <span id="bedroom_fan">{{ sensor_data.bedroom.fan }}</span></p>
+        <p>Cửa sổ: <span id="bedroom_window">{{ sensor_data.bedroom.window }}</span></p>
+        <button onclick="toggleBedroomLED()">
+            {% if sensor_data.bedroom.led == "ON" %}
+                TẮT ĐÈN
+            {% else %}
+                BẬT ĐÈN
+            {% endif %}
+        </button>
+        <button onclick="toggleBedroomFan()">
+            {% if sensor_data.bedroom.fan == "ON" %}
+                TẮT QUẠT
+            {% else %}
+                BẬT QUẠT
+            {% endif %}
+        </button>
+        <button onclick="toggleBedroomWindow()">
+            {% if sensor_data.bedroom.window == "OPEN" %}
+                ĐÓNG CỬA SỔ
+            {% else %}
+                MỞ CỬA SỔ
+            {% endif %}
+        </button>
+    </div>
+</body>
+</html>
